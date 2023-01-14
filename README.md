@@ -81,5 +81,6 @@ animeTrendingzAPI.getCurrentTopAnimes(3, 'asc')
 - `getCurrentTopCouples(limitRank = null, sortType = 'asc') => Array`
 - `getCurrentTopOpeningSongs(limitRank = null, sortType = 'asc') => Array`
 - `getCurrentTopEndingSongs(limitRank = null, sortType = 'asc') => Array`
+- `getSpecifiedTopAnimesBasedOnSeason(year, season, week, limitRank = null, sortType = 'asc') => Array`
 
 ### **_If you like this project, please give me a star. Thank you_. :kissing_heart::heart_eyes::heart::blue_heart::cupid:** ###

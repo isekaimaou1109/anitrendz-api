@@ -1,6 +1,6 @@
 {
   "name": "animetrenz-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Unofficial - This API will get current top animes in AnimeTrendingz",
   "main": "main.js",
   "scripts": {
@@ -20,9 +20,10 @@
     "axios": "^1.2.2",
     "firebase": "^9.15.0"
   },
-  "url" : "https://github.com/isekaimaou1109/anitrendz-api/issues",
+  "url": "https://github.com/isekaimaou1109/anitrendz-api/issues",
   "repository": {
     "type": "git",
     "url": "git@github.com:isekaimaou1109/anitrendz-api.git"
-  }
+  },
+  "devDependencies": {}
 }

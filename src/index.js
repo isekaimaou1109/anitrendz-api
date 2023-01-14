@@ -1,7 +1,6 @@
 "use strict"
 
 const fs = require('fs');
-const os =  require('os');
 const { resolve } = require('path');
 const axios = require('axios').default;
 const { initializeApp } = require('firebase/app');
@@ -52,7 +51,7 @@ class AnimeTrendingApi {
       coupleName: title === 'couple ship' ? name : null,
       name: title === 'couple ship' ? originalAnimePattern?.subText : name,
       alternativeName: originalAnimePattern?.namealt ? originalAnimePattern?.namealt : null,
-      studio: title === 'couple ship' ? null : originalAnimePattern?.subText,
+      studio: title === 'couple ship' ? null : (originalAnimePattern?.subText ? originalAnimePattern?.subText : originalAnimePattern?.subtext),
       totalVote: originalAnimePattern?.total,
       timesInTopTenOfASeason: weeksAtTopTen,
       images: originalAnimePattern?.images ? originalAnimePattern?.images : null,
@@ -77,7 +76,7 @@ class AnimeTrendingApi {
         !isSourceForSong ? 
           sampleDataNotForSong : 
           sampleDataForSong
-      ).filter(currentAnime => currentAnime[1] !== null)
+      ).filter(currentAnime => currentAnime[1] !== null || currentAnime[1] !== undefined)
     )
   }
 
@@ -122,7 +121,13 @@ class AnimeTrendingApi {
   }
 
 
-  /** API: GET CURRENT TOP ANIMES IN ANIME TRENDINGZ */
+  /**
+   * API: GET CURRENT TOP ANIMES IN ANIME TRENDINGZ
+   * 
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
   async getCurrentTopAnimes(limitRank = null, sortType = 'asc') {
     const listCurrentTopAnimes = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_ANIME_URL)
@@ -132,7 +137,13 @@ class AnimeTrendingApi {
   }
 
 
-  /** API: GET CURRENT TOP MALES IN ANIME TRENDINGZ */
+  /**
+   * API: GET CURRENT TOP MALES IN ANIME TRENDINGZ
+   * 
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
   async getCurrentTopMales(limitRank = null, sortType = 'asc') {
     const listCurrentTopMales = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_MALE_ANIME_URL)
@@ -141,7 +152,13 @@ class AnimeTrendingApi {
   }
 
 
-  /** API: GET CURRENT TOP FEMALES IN ANIME TRENDINGZ */
+  /**
+   * API: GET CURRENT TOP FEMALES IN ANIME TRENDINGZ
+   * 
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
   async getCurrentTopFemales(limitRank = null, sortType = 'asc') {
     const listCurrentTopFemales = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_FEMALE_ANIME_URL)
@@ -150,7 +167,13 @@ class AnimeTrendingApi {
   }
   
 
-  /** API: GET CURRENT TOP COUPLES IN ANIME TRENDINGZ */
+  /**
+   * API: GET CURRENT TOP COUPLES IN ANIME TRENDINGZ
+   * 
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
   async getCurrentTopCouples(limitRank = null, sortType = 'asc') {
     const listCurrentTopCouples = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_COUPLE_ANIME_URL)
@@ -159,7 +182,13 @@ class AnimeTrendingApi {
   }
 
 
-  /** API: GET CURRENT TOP OPENING SONGS IN ANIME TRENDINGZ */
+  /**
+   * API: GET CURRENT TOP OPENING SONGS IN ANIME TRENDINGZ
+   * 
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
   async getCurrentTopOpeningSongs(limitRank = null, sortType = 'asc') {
     const listCurrentTopOpeningSongs = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_OPENING_SONG_ANIME_URL),
@@ -169,7 +198,13 @@ class AnimeTrendingApi {
   }
 
 
-  /** API: GET CURRENT TOP ENDING SONGS IN ANIME TRENDINGZ */
+  /**
+   * API: GET CURRENT TOP ENDING SONGS IN ANIME TRENDINGZ
+   * 
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
   async getCurrentTopEndingSongs(limitRank = null, sortType = 'asc') {
     const listCurrentTopEndingSongs = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_ENDING_SONG_ANIME_URL),
@@ -177,13 +212,43 @@ class AnimeTrendingApi {
     )
     return this.#limitAndSort(listCurrentTopEndingSongs, limitRank, sortType);
   }
+
+
+  /**
+   * API: GET SPECIFIED TOP ANIMES
+   * 
+   * @param {number} year - The year that you want to search.
+   * @param {string} season - The season that you want to search (fall|spring|winter|sommer).
+   * @param {number} week - The week that you want to search.
+   * @param {number} limitRank - The year that you want to search.
+   * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
+   * @returns {Promise<any[]>} Return array of anime.
+   */
+  async getSpecifiedTopAnimesBasedOnSeason(year, season, week, limitRank = null, sortType = 'asc') {
+    const listAllSeasonOfYear = await getDocs(collection(this.#CORE_DB, `charts/top-anime/${year}`));
+    const listSpecifiedSeason = listAllSeasonOfYear
+      .docs
+      .map(doc => doc.data())
+      .filter((currentAnime) => {
+        return (
+          currentAnime.season === season && 
+          currentAnime.week === week
+        )
+      })[0]
+    const allTopAnimesOfSpecifiedSeason = await this.#mapDataSource(
+      listSpecifiedSeason
+    )
+    return this.#limitAndSort(allTopAnimesOfSpecifiedSeason, limitRank, sortType).map((currentData) => {
+      for (let key in currentData) {
+        if (currentData[key] === null || currentData[key] === undefined) {
+          delete currentData[key];
+        }
+      }
+      return currentData;
+    })
+  }
 }
 
 module.exports = new AnimeTrendingApi()
-
-// const citiesCol = collection(this.#CORE_DB, 'charts/top-anime/2021');
-// const citySnapshot = await getDocs(citiesCol);
-// const cityList = citySnapshot.docs.map(doc => doc.data());
-// return cityList;
 
 

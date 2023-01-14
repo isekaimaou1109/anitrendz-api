@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const os =  require('os');
-const path = require('path');
+const { resolve } = require('path');
 const axios = require('axios').default;
 const { initializeApp } = require('firebase/app');
 const { getFirestore, collection, getDocs } = require('firebase/firestore/lite');
@@ -22,7 +22,7 @@ class AnimeTrendingApi {
   constructor() {
     this.#ANIMETRENDINGZ_INFO = JSON.parse(
       fs.readFileSync(
-        `${process.cwd() + (os.platform() === 'win32' ? "\\" : '/') + 'secret.json'}`,
+        resolve(__dirname, '../secret.json'),
         { encoding: 'utf8' }
       )
     )

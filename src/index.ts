@@ -1,40 +1,47 @@
 "use strict"
 
 const fs = require('fs');
-const { resolve } = require('path');
+const { join } = require('path');
 const axios = require('axios').default;
 const { initializeApp } = require('firebase/app');
 const { getFirestore, collection, getDocs } = require('firebase/firestore/lite');
 
+import type { 
+  IPositionTemplate, IAnimeTemplate, 
+  IAnimeSongTemplate 
+} from "./types"
+
 class AnimeTrendingApi {
   /** CORE MAINTER */
-  #ANIMETRENDINGZ_INFO; #CORE_DB;
+  private ANIMETRENDINGZ_INFO!: JSON; 
+  private CORE_DB: any;
 
   /** URLS TO GET CURRENT TOP */
-  #CURRENT_TOP_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/top-anime';
-  #CURRENT_TOP_MALE_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/male-characters';
-  #CURRENT_TOP_FEMALE_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/female-characters';
-  #CURRENT_TOP_COUPLE_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/couple-ship';
-  #CURRENT_TOP_OPENING_SONG_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/op-theme-songs';
-  #CURRENT_TOP_ENDING_SONG_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/ed-theme-songs';
+  private readonly CURRENT_TOP_ANIME_URL: string = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/top-anime';
+  private readonly CURRENT_TOP_MALE_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/male-characters';
+  private readonly CURRENT_TOP_FEMALE_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/female-characters';
+  private readonly CURRENT_TOP_COUPLE_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/couple-ship';
+  private readonly CURRENT_TOP_OPENING_SONG_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/op-theme-songs';
+  private readonly CURRENT_TOP_ENDING_SONG_ANIME_URL = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/ed-theme-songs';
 
   constructor() {
-    this.#ANIMETRENDINGZ_INFO = JSON.parse(
+    this.ANIMETRENDINGZ_INFO = JSON.parse(
       fs.readFileSync(
-        resolve(__dirname, '../secret.json'),
+        join(process.cwd(), 'secret.json'),
         { encoding: 'utf8' }
       )
     )
-    this.#CORE_DB = getFirestore(initializeApp(this.#ANIMETRENDINGZ_INFO));
+    this.CORE_DB = getFirestore(initializeApp(this.ANIMETRENDINGZ_INFO));
   }
 
   /**
    *  THIS FUNCTION WILL CREATE A TEMPLATE
    *  FOR EACH TOP ANIME
    */
-  #templateAnimeTopPattern(
-    title = null, originalAnimePattern, 
-    week = null, season = null, isSourceForSong = false
+  private templateAnimeTopPattern(
+    title: string = null, originalAnimePattern: any, 
+    week: number = null, season: number = null, 
+    isSourceForSong: boolean = false
   ) {
     title = title.toLowerCase();
     const { 
@@ -42,12 +49,12 @@ class AnimeTrendingApi {
       name
     } = originalAnimePattern;
 
-    const baseCustomization = {
+    const baseCustomization: IPositionTemplate = {
       currentPosition: position,
       previousPosition: previously
     }
 
-    const sampleDataNotForSong = {
+    const sampleDataNotForSong: IAnimeTemplate = {
       coupleName: title === 'couple ship' ? name : null,
       name: title === 'couple ship' ? originalAnimePattern?.subText : name,
       alternativeName: originalAnimePattern?.namealt ? originalAnimePattern?.namealt : null,
@@ -60,7 +67,7 @@ class AnimeTrendingApi {
       ...baseCustomization,
     }
 
-    const sampleDataForSong = {
+    const sampleDataForSong: IAnimeSongTemplate = {
       songName: name,
       singer: originalAnimePattern?.subtext,
       image: originalAnimePattern?.image ? originalAnimePattern?.image : null,
@@ -84,7 +91,7 @@ class AnimeTrendingApi {
    *  THIS FUNCTION WILL FETCH DATA AND IT IS SOURCE 
    *  DATA
    */
-  async #createRawDataSource(url) {
+  private async createRawDataSource(url: string) {
     return await (await axios.get(url)).data[0]
   }
 
@@ -94,7 +101,7 @@ class AnimeTrendingApi {
    *  AND SORT ASCENDING OR DESCENDING BASED-ON YOU 
    *  WANT 
    */
-  #limitAndSort(dataSource, limitRank = null, sortType = 'asc') {
+  private limitAndSort(dataSource: Array<any>, limitRank: number, sortType: string = 'asc'): Array<any> {
     return dataSource
       .slice(0, !limitRank ? undefined : limitRank)
       .sort((previous, next) => 
@@ -108,9 +115,9 @@ class AnimeTrendingApi {
    *  THIS FUNCTION WILL MAP 1:1 FROM ORIGINAL DATA
    *  TO OTHER DATA
    */
-  async #mapDataSource(originalData, isSourceForSong = false) {
+  private async mapDataSource(originalData, isSourceForSong: boolean = false) {
     return await originalData.choices.map((currentData) => 
-      this.#templateAnimeTopPattern(
+      this.templateAnimeTopPattern(
         originalData.name,
         currentData, 
         originalData.week, 
@@ -128,12 +135,12 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getCurrentTopAnimes(limitRank = null, sortType = 'asc') {
-    const listCurrentTopAnimes = await this.#mapDataSource(
-      await this.#createRawDataSource(this.#CURRENT_TOP_ANIME_URL)
+  async getCurrentTopAnimes(limitRank: number, sortType: string = 'asc'): Promise<Array<any>> {
+    const listCurrentTopAnimes = await this.mapDataSource(
+      await this.createRawDataSource(this.CURRENT_TOP_ANIME_URL)
     )
     
-    return this.#limitAndSort(listCurrentTopAnimes, limitRank, sortType);
+    return this.limitAndSort(listCurrentTopAnimes, limitRank, sortType);
   }
 
 
@@ -144,11 +151,11 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getCurrentTopMales(limitRank = null, sortType = 'asc') {
-    const listCurrentTopMales = await this.#mapDataSource(
-      await this.#createRawDataSource(this.#CURRENT_TOP_MALE_ANIME_URL)
+  async getCurrentTopMales(limitRank: number, sortType: string = 'asc'): Promise<Array<any>> {
+    const listCurrentTopMales = await this.mapDataSource(
+      await this.createRawDataSource(this.CURRENT_TOP_MALE_ANIME_URL)
     )
-    return this.#limitAndSort(listCurrentTopMales, limitRank, sortType);
+    return this.limitAndSort(listCurrentTopMales, limitRank, sortType);
   }
 
 
@@ -159,11 +166,11 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getCurrentTopFemales(limitRank = null, sortType = 'asc') {
-    const listCurrentTopFemales = await this.#mapDataSource(
-      await this.#createRawDataSource(this.#CURRENT_TOP_FEMALE_ANIME_URL)
+  async getCurrentTopFemales(limitRank: number, sortType: string = 'asc'): Promise<Array<any>> {
+    const listCurrentTopFemales = await this.mapDataSource(
+      await this.createRawDataSource(this.CURRENT_TOP_FEMALE_ANIME_URL)
     )
-    return this.#limitAndSort(listCurrentTopFemales, limitRank, sortType);
+    return this.limitAndSort(listCurrentTopFemales, limitRank, sortType);
   }
   
 
@@ -174,11 +181,11 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getCurrentTopCouples(limitRank = null, sortType = 'asc') {
-    const listCurrentTopCouples = await this.#mapDataSource(
-      await this.#createRawDataSource(this.#CURRENT_TOP_COUPLE_ANIME_URL)
+  async getCurrentTopCouples(limitRank: number, sortType: string = 'asc'): Promise<Array<any>> {
+    const listCurrentTopCouples = await this.mapDataSource(
+      await this.createRawDataSource(this.CURRENT_TOP_COUPLE_ANIME_URL)
     )
-    return this.#limitAndSort(listCurrentTopCouples, limitRank, sortType);
+    return this.limitAndSort(listCurrentTopCouples, limitRank, sortType);
   }
 
 
@@ -189,12 +196,12 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getCurrentTopOpeningSongs(limitRank = null, sortType = 'asc') {
-    const listCurrentTopOpeningSongs = await this.#mapDataSource(
-      await this.#createRawDataSource(this.#CURRENT_TOP_OPENING_SONG_ANIME_URL),
+  async getCurrentTopOpeningSongs(limitRank: number, sortType: string = 'asc'): Promise<Array<any>> {
+    const listCurrentTopOpeningSongs = await this.mapDataSource(
+      await this.createRawDataSource(this.CURRENT_TOP_OPENING_SONG_ANIME_URL),
       true
     )
-    return this.#limitAndSort(listCurrentTopOpeningSongs, limitRank, sortType);
+    return this.limitAndSort(listCurrentTopOpeningSongs, limitRank, sortType);
   }
 
 
@@ -205,12 +212,12 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getCurrentTopEndingSongs(limitRank = null, sortType = 'asc') {
-    const listCurrentTopEndingSongs = await this.#mapDataSource(
-      await this.#createRawDataSource(this.#CURRENT_TOP_ENDING_SONG_ANIME_URL),
+  async getCurrentTopEndingSongs(limitRank: number, sortType: string = 'asc'): Promise<Array<any>> {
+    const listCurrentTopEndingSongs = await this.mapDataSource(
+      await this.createRawDataSource(this.CURRENT_TOP_ENDING_SONG_ANIME_URL),
       true
     )
-    return this.#limitAndSort(listCurrentTopEndingSongs, limitRank, sortType);
+    return this.limitAndSort(listCurrentTopEndingSongs, limitRank, sortType);
   }
 
 
@@ -224,8 +231,12 @@ class AnimeTrendingApi {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<any[]>} Return array of anime.
    */
-  async getSpecifiedTopAnimesBasedOnSeason(year, season, week, limitRank = null, sortType = 'asc') {
-    const listAllSeasonOfYear = await getDocs(collection(this.#CORE_DB, `charts/top-anime/${year}`));
+  async getSpecifiedTopAnimesBasedOnSeason(
+    year: number, season: number, 
+    week: number, limitRank: number, 
+    sortType: string = 'asc'
+  ): Promise<any> {
+    const listAllSeasonOfYear = await getDocs(collection(this.CORE_DB, `charts/top-anime/${year}`));
     const listSpecifiedSeason = listAllSeasonOfYear
       .docs
       .map(doc => doc.data())
@@ -235,10 +246,10 @@ class AnimeTrendingApi {
           currentAnime.week === week
         )
       })[0]
-    const allTopAnimesOfSpecifiedSeason = await this.#mapDataSource(
+    const allTopAnimesOfSpecifiedSeason = await this.mapDataSource(
       listSpecifiedSeason
     )
-    return this.#limitAndSort(allTopAnimesOfSpecifiedSeason, limitRank, sortType).map((currentData) => {
+    return this.limitAndSort(allTopAnimesOfSpecifiedSeason, limitRank, sortType).map((currentData) => {
       for (let key in currentData) {
         if (currentData[key] === null || currentData[key] === undefined) {
           delete currentData[key];

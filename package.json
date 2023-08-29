@@ -2,7 +2,8 @@
   "name": "animetrenz-api",
   "version": "1.0.3",
   "description": "Unofficial - This API will get current top animes in AnimeTrendingz",
-  "main": "main.js",
+  "main": "main.ts",
+  "type": "module",
   "scripts": {
     "start": "npm main.js"
   },

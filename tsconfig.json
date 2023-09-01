@@ -1,8 +1,15 @@
 {
   "compilerOptions": {
     "outDir": "./build",
-    "allowJs": true,
-    "target": "ES2016"
+    "allowJs": false,
+    "sourceMap": false,
+    "moduleResolution": "Node",
+    "target": "ES6",
+    "baseUrl": "./src",
+    "paths": {
+      "@/*": ["*"]
+    }
   },
-  "include": ["./src/**/*"]
+  "include": ["src/index.ts"],
+  "exclude": ["node_modules"]
 }

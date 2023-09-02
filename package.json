@@ -2,7 +2,6 @@
   "name": "animetrenz-api",
   "version": "1.0.5",
   "description": "Unofficial - This API will get current top animes in AnimeTrendingz",
-  "type": "module",
   "scripts": {
     "build-node-esm": "tsc --project tsconfig.esm.json",
     "build-node-cjs": "tsc --project tsconfig.cjs.json",
@@ -10,11 +9,9 @@
   },
   "exports": {
     "import": "./build/node/esm/index.js",
-    "default": "./build/node/esm/index.js",
-    "require": "./build/node/cjs/index.js",
-    "node": "./build/node/cjs/index.js",
-    "types": "./src/types.d.ts"
+    "require": "./build/node/cjs/index.js"
   },
+  "types": "./src/types.d.ts",
   "keywords": [
     "anime-trendingz-api",
     "anime-top-api",

@@ -1,8 +1,9 @@
 "use strict"
 
-import * as fs from "fs";
-import { resolve, join } from "path";
 import axios from "axios";
+import * as fs from "fs";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from 'url';
 import { initializeApp as init } from "firebase/app"
 import { 
   getFirestore as store,
@@ -33,11 +34,18 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
   readonly #CURRENT_TOP_ENDING_SONG_ANIME_URL: string = 'https://us-central1-anitrendz-prod.cloudfunctions.net/animeTrendingAPI/charts/ed-theme-songs';
 
   constructor() {
-    const __dirname: string = resolve();
+    var path: string = "";
+    if (__dirname) {
+      path = resolve(__dirname, '../../secret.json');
+    } else {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = dirname(__filename);
+      path = resolve(__dirname, '../../secret.json')
+    }
+
     this.#ANIMETRENDINGZ_INFO = JSON.parse(
       fs.readFileSync(
-        join(__dirname, 'secret.json'),
-        { encoding: 'utf8' }
+        path, { encoding: 'utf8' }
       )
     )
     this.#CORE_DB = store(init(this.#ANIMETRENDINGZ_INFO));

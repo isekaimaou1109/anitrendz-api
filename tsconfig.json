@@ -3,8 +3,9 @@
     "outDir": "./build",
     "allowJs": false,
     "sourceMap": false,
-    "moduleResolution": "Node",
-    "target": "ES6",
+    "moduleResolution": "node",
+    "target": "esnext",
+    "module": "esnext",
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]

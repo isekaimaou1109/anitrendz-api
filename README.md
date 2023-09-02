@@ -1,6 +1,8 @@
 # **THIS IS AN UNOFFICIAL API FOR ANIMETRENDINGZ** #
 ## **Dont't use for commercial purpose. Thank you!!** ##
 
+## **Please use the latest version 1.1. The other versions are just test.** ##
+
 ### **Targets:** ###
 - You want to get current top like animes, male/female characters, OP/ED Songs.
 - You want also to get specified season top like above.
@@ -9,7 +11,7 @@
 
 ### **Usage:** ###
 ```javascript
-const animeTrendingzAPI = require('animetrenz-api')
+const animeTrendingzAPI = require('animetrenz-api').default
 
 animeTrendingzAPI.getCurrentTopAnimes(3, 'asc')
   .then(data => console.log(data))

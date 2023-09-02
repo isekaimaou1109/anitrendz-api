@@ -1,8 +1,0 @@
-import { defineConfig } from 'tsup'
-
-export default defineConfig({
-  entry: ['src/index.ts'],
-  sourcemap: false,
-  format: ["esm", "cjs"],
-  shims: true
-})

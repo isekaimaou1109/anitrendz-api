@@ -1,6 +1,6 @@
 {
   "name": "animetrenz-api",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "Unofficial - This API will get current top animes in AnimeTrendingz",
   "scripts": {
     "preinstall": "tsup"
@@ -31,5 +31,11 @@
   },
   "devDependencies": {
     "tsup": "^7.2.0"
+  },
+  "tsup": {
+    "entry": ["src/index.ts"],
+    "sourcemap": false,
+    "format": ["esm", "cjs"],
+    "shims": true
   }
 }

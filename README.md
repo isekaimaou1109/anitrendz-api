@@ -9,7 +9,7 @@
 - You want to ... (will be expanded api more)
 
 
-### **Usage:** ###
+### **Usage with CommonJS:** ###
 ```javascript
 const animeTrendingzAPI = require('animetrenz-api').default
 
@@ -18,6 +18,14 @@ animeTrendingzAPI.getCurrentTopAnimes(3, 'asc')
   .catch(e => console.error(e))
 ```
 
+### **Usage with ESM:** ###
+```javascript
+import animeTrendingzAPI from "animetrenz-api"
+
+animeTrendingzAPI.getCurrentTopAnimes(3, 'asc')
+  .then(data => console.log(data))
+  .catch(e => console.error(e))
+```
 
 ### **Result:** ###
 ```javascript

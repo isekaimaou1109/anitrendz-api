@@ -36,11 +36,11 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
   constructor() {
     var path: string = "";
     if (__dirname) {
-      path = resolve(__dirname, '../../secret.json');
+      path = resolve(__dirname, '../../animetrenz-api/secret.json');
     } else {
       const __filename = fileURLToPath(import.meta.url);
       const __dirname = dirname(__filename);
-      path = resolve(__dirname, '../../secret.json')
+      path = resolve(__dirname, '../../animetrenz-api/secret.json')
     }
 
     this.#ANIMETRENDINGZ_INFO = JSON.parse(

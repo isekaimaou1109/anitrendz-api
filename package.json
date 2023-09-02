@@ -1,10 +1,10 @@
 {
   "name": "animetrenz-api",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Unofficial - This API will get current top animes in AnimeTrendingz",
   "scripts": {
     "build": "tsup",
-    "preinstall": "npm run build"
+    "preinstall": "npm install && npm run build"
   },
   "exports": {
     "import": "./dist/index.mjs",

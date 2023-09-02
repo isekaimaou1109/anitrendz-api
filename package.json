@@ -1,11 +1,10 @@
 {
   "name": "animetrenz-api",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Unofficial - This API will get current top animes in AnimeTrendingz",
   "scripts": {
-    "build-node-esm": "tsc --project tsconfig.esm.json",
-    "build-node-cjs": "tsc --project tsconfig.cjs.json",
-    "preinstall": "npm run build-node-esm && npm run build-node-cjs"
+    "build": "tsup",
+    "preinstall": "npm run build"
   },
   "exports": {
     "import": "./build/node/esm/index.js",
@@ -31,5 +30,7 @@
     "type": "git",
     "url": "git@github.com:isekaimaou1109/anitrendz-api.git"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "tsup": "^7.2.0"
+  }
 }

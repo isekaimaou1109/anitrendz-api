@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
-    "allowJs": false,
-    "sourceMap": false,
+    "target": "ESNext",
     "moduleResolution": "node",
-    "target": "esnext",
-    "module": "esnext",
+    "module": "ESNext",
+    "outDir": "dist",
+    "esModuleInterop": true,
+    "declaration": true,
+    "sourceMap": true,
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"]

@@ -1,3 +1,6 @@
+export type Season = "fall" | "spring" | "winter" | "summer";
+export type SortType = "asc" | "dsc";
+
 export interface StoreConfig {
   readonly appId: string;
   readonly authDomain: string;
@@ -22,7 +25,7 @@ interface Image<T> {
 
 declare global {
   interface Array<T> {
-    limitAndSort(limitRank: number, sortType: string);
+    limitAndSort(limitRank?: number, sortType?: SortType);
   }
 }
 
@@ -49,16 +52,16 @@ export type IAnimeSongTemplate = {
 } & IPositionTemplate;
 
 export interface IAnimeTrendingApiTemplate {
-  getCurrentTopAnimes(limitRank: number, sortType: string): Promise<Array<any>>;
-  getCurrentTopMales(limitRank: number, sortType: string): Promise<Array<any>>;
-  getCurrentTopFemales(limitRank: number, sortType: string): Promise<Array<any>>;
-  getCurrentTopCouples(limitRank: number, sortType: string): Promise<Array<any>>;
-  getCurrentTopOpeningSongs(limitRank: number, sortType: string): Promise<Array<any>>;
-  getCurrentTopEndingSongs(limitRank: number, sortType: string): Promise<Array<any>>;
+  getCurrentTopAnimes(limitRank?: number, sortType?: SortType): Promise<Array<any>>;
+  getCurrentTopMales(limitRank?: number, sortType?: SortType): Promise<Array<any>>;
+  getCurrentTopFemales(limitRank?: number, sortType?: SortType): Promise<Array<any>>;
+  getCurrentTopCouples(limitRank?: number, sortType?: SortType): Promise<Array<any>>;
+  getCurrentTopOpeningSongs(limitRank?: number, sortType?: SortType): Promise<Array<any>>;
+  getCurrentTopEndingSongs(limitRank?: number, sortType?: SortType): Promise<Array<any>>;
   getSpecifiedTopAnimesBasedOnSeason(
-    year: number, season: number, 
-    week: number, limitRank: number, 
-    sortType: string
+    year: Required<number>, season: Required<Season>, 
+    week: Required<number>, limitRank?: number, 
+    sortType?: SortType
   ): Promise<Array<any>>;
 }
 

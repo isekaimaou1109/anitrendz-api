@@ -17,7 +17,8 @@ import type {
 } from "firebase/firestore/lite"
 import type { 
   IPositionTemplate, IAnimeTemplate, StoreConfig,
-  IAnimeSongTemplate, IAnimeTrendingApiTemplate
+  IAnimeSongTemplate, IAnimeTrendingApiTemplate,
+  Season, SortType
 } from "@/types"
 
 class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
@@ -52,7 +53,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
 
     Object.defineProperty(Array.prototype, "limitAndSort", {
       enumerable: false,
-      value: function(limitRank: number, sortType: string = 'asc') {
+      value: function(limitRank: number, sortType: SortType = 'asc') {
         return this
         .slice(0, !limitRank ? undefined : limitRank)
         .sort((previous, next) => 
@@ -155,7 +156,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<Array<IAnimeTemplate>>} Return array of current top anime.
    */
-  async getCurrentTopAnimes(limitRank: number, sortType: string = 'asc'): Promise<Array<IAnimeTemplate>> {
+  async getCurrentTopAnimes(limitRank?: number, sortType?: SortType): Promise<Array<IAnimeTemplate>> {
     const listCurrentTopAnimes: Array<IAnimeTemplate> = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_ANIME_URL)
     )
@@ -171,7 +172,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<Array<IAnimeTemplate>>} Return array of current top male in anime.
    */
-  async getCurrentTopMales(limitRank: number, sortType: string = 'asc'): Promise<Array<IAnimeTemplate>> {
+  async getCurrentTopMales(limitRank?: number, sortType?: SortType): Promise<Array<IAnimeTemplate>> {
     const listCurrentTopMales: Array<IAnimeTemplate> = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_MALE_ANIME_URL)
     )
@@ -186,7 +187,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<Array<IAnimeTemplate>>} Return array of current top female in anime.
    */
-  async getCurrentTopFemales(limitRank: number, sortType: string = 'asc'): Promise<Array<IAnimeTemplate>> {
+  async getCurrentTopFemales(limitRank?: number, sortType?: SortType): Promise<Array<IAnimeTemplate>> {
     const listCurrentTopFemales: Array<IAnimeTemplate> = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_FEMALE_ANIME_URL)
     )
@@ -201,7 +202,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<Array<IAnimeTemplate>>} Return array of current top best couple in anime.
    */
-  async getCurrentTopCouples(limitRank: number, sortType: string = 'asc'): Promise<Array<IAnimeTemplate>> {
+  async getCurrentTopCouples(limitRank?: number, sortType?: SortType): Promise<Array<IAnimeTemplate>> {
     const listCurrentTopCouples: Array<IAnimeTemplate> = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_COUPLE_ANIME_URL)
     )
@@ -216,7 +217,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<Array<IAnimeSongTemplate>>} Return array of current top opening song in current season's anime.
    */
-  async getCurrentTopOpeningSongs(limitRank: number, sortType: string = 'asc'): Promise<Array<IAnimeSongTemplate>> {
+  async getCurrentTopOpeningSongs(limitRank?: number, sortType?: SortType): Promise<Array<IAnimeSongTemplate>> {
     const listCurrentTopOpeningSongs: Array<IAnimeSongTemplate> = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_OPENING_SONG_ANIME_URL),
       true
@@ -232,7 +233,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @param {string} sortType - The sorting type can be 'asc' or 'dsc'.
    * @returns {Promise<Array<IAnimeSongTemplate>>} Return array of current top ending song in current season's anime.
    */
-  async getCurrentTopEndingSongs(limitRank: number, sortType: string = 'asc'): Promise<Array<IAnimeSongTemplate>> {
+  async getCurrentTopEndingSongs(limitRank?: number, sortType?: SortType): Promise<Array<IAnimeSongTemplate>> {
     const listCurrentTopEndingSongs: Array<IAnimeSongTemplate> = await this.#mapDataSource(
       await this.#createRawDataSource(this.#CURRENT_TOP_ENDING_SONG_ANIME_URL),
       true
@@ -252,9 +253,9 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
    * @returns {Promise<any[]>} Return array of anime.
    */
   async getSpecifiedTopAnimesBasedOnSeason(
-    year: number, season: number, 
-    week: number, limitRank: number, 
-    sortType: string = 'asc'
+    year: number, season: Season, 
+    week: number, limitRank?: number, 
+    sortType?: SortType
   ): Promise<Array<IAnimeTemplate>> {
     const listAllSeasonOfYear = await getDocs(collection(this.#CORE_DB, `charts/top-anime/${year}`));
     const listSpecifiedSeason = listAllSeasonOfYear
@@ -263,7 +264,7 @@ class AnimeTrendingApi implements IAnimeTrendingApiTemplate {
       .filter((currentAnime) => {
         return (
           currentAnime.season === season && 
-          currentAnime.week === week
+          +currentAnime.week === week
         )
       })[0]
     const allTopAnimesOfSpecifiedSeason: Array<IAnimeTemplate> = await this.#mapDataSource(
